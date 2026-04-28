@@ -38,11 +38,14 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 # ============================================================================
 function(add_irx_source irx_name output_var)
     set(irx_path "${PS2SDK}/iop/irx/${irx_name}.irx")
-    set(output_c "${CMAKE_CURRENT_BINARY_DIR}/${irx_name}_irx.c")
+    # IRX file names may contain hyphens (ps2ip-nm.irx); the resulting C
+    # symbol must use underscores (ps2ip_nm_irx) to be a valid identifier.
+    string(REPLACE "-" "_" irx_symbol "${irx_name}")
+    set(output_c "${CMAKE_CURRENT_BINARY_DIR}/${irx_symbol}_irx.c")
 
     add_custom_command(
         OUTPUT ${output_c}
-        COMMAND ${BIN2C} ${irx_path} ${output_c} ${irx_name}_irx
+        COMMAND ${BIN2C} ${irx_path} ${output_c} ${irx_symbol}_irx
         DEPENDS ${irx_path}
         COMMENT "Converting ${irx_name}.irx to C source"
         VERBATIM
@@ -99,6 +102,8 @@ add_irx_source(ps2kbd PS2KBD_IRX)
 add_irx_source(ps2cam PS2CAM_IRX)
 add_irx_source(netman NETMAN_IRX)
 add_irx_source(smap SMAP_IRX)
+add_irx_source(ps2ip-nm PS2IP_NM_IRX)
+add_irx_source(ps2ips PS2IPS_IRX)
 
 set(IRX_SOURCES
     ${SIO2MAN_IRX}
@@ -126,6 +131,8 @@ set(IRX_SOURCES
     ${PS2CAM_IRX}
     ${NETMAN_IRX}
     ${SMAP_IRX}
+    ${PS2IP_NM_IRX}
+    ${PS2IPS_IRX}
 )
 
 # ============================================================================
@@ -217,7 +224,14 @@ add_driver_objects(eeip
 )
 
 # IOPIP driver
-add_driver_objects(iopip internals init deinit)
+add_driver_objects(iopip
+    internals
+    init
+    deinit
+    configure_iopip_network
+    iopip_network_config_default
+    iopip_get_current_config
+)
 
 # ============================================================================
 # Build the implementation library
@@ -267,6 +281,7 @@ set(PS2SDK_LIBS
     "${PS2SDK}/ee/lib/libps2cam.a"
     "${PS2SDK}/ee/lib/libnetman.a"
     "${PS2SDK}/ee/lib/libps2ip.a"
+    "${PS2SDK}/ee/lib/libps2ips.a"
 )
 
 # Create the combined library using ar with MRI script

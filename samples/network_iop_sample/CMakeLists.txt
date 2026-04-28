@@ -1,0 +1,22 @@
+# network_iop_sample CMakeLists.txt
+
+add_executable(network_iop_sample.elf network_iop_sample.c)
+
+target_include_directories(network_iop_sample.elf PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+)
+
+target_link_libraries(network_iop_sample.elf
+    -lps2_drivers
+    -lpatches
+    -ldebug
+)
+
+target_compile_options(network_iop_sample.elf PRIVATE -O0 -g)
+
+set_target_properties(network_iop_sample.elf PROPERTIES
+    LINK_FLAGS "-L${CMAKE_BINARY_DIR}"
+)
+
+# Add dependency on the main library
+add_dependencies(network_iop_sample.elf ps2_drivers)
