@@ -207,7 +207,14 @@ add_driver_objects(netman internals init deinit)
 add_driver_objects(smap internals init deinit)
 
 # EEIP driver
-add_driver_objects(eeip internals init deinit)
+add_driver_objects(eeip
+    internals
+    init
+    deinit
+    configure_eeip_network
+    eeip_network_config_default_dhcp
+    eeip_get_current_config
+)
 
 # IOPIP driver
 add_driver_objects(iopip internals init deinit)
